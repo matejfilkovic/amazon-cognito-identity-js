@@ -3957,10 +3957,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	   * method for getting the current user of the application from the local storage
 	   *
 	   * @returns {CognitoUser} the user retrieved from storage
+	   * @param {bool=} refreshExpiredSession Refresh a current user's session when expires
 	   */
 
 
-	  CognitoUserPool.prototype.getCurrentUser = function getCurrentUser() {
+	  CognitoUserPool.prototype.getCurrentUser = function getCurrentUser(refreshExpiredSession) {
 	    var lastUserKey = 'CognitoIdentityServiceProvider.' + this.clientId + '.LastAuthUser';
 
 	    var lastAuthUser = this.storage.getItem(lastUserKey);
@@ -3971,7 +3972,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        Storage: this.storage
 	      };
 
-	      return new _CognitoUser2.default(cognitoUser);
+	      return new _CognitoUser2.default(cognitoUser, refreshExpiredSession);
 	    }
 
 	    return null;

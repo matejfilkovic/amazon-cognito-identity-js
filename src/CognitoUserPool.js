@@ -126,8 +126,9 @@ export default class CognitoUserPool {
    * method for getting the current user of the application from the local storage
    *
    * @returns {CognitoUser} the user retrieved from storage
+   * @param {bool=} refreshExpiredSession Refresh a current user's session when expires
    */
-  getCurrentUser() {
+  getCurrentUser(refreshExpiredSession) {
     const lastUserKey = `CognitoIdentityServiceProvider.${this.clientId}.LastAuthUser`;
 
     const lastAuthUser = this.storage.getItem(lastUserKey);
@@ -138,7 +139,7 @@ export default class CognitoUserPool {
         Storage: this.storage,
       };
 
-      return new CognitoUser(cognitoUser);
+      return new CognitoUser(cognitoUser, refreshExpiredSession);
     }
 
     return null;
