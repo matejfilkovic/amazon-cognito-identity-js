@@ -1639,8 +1639,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	   * @param {string} data.Username The user's username.
 	   * @param {CognitoUserPool} data.Pool Pool containing the user.
 	   * @param {object} data.Storage Optional storage object.
+	   * @param {bool=} refreshExpiredSession Refresh a current session when expires.
 	   */
-	  function CognitoUser(data) {
+	  function CognitoUser(data, refreshExpiredSession) {
 	    _classCallCheck(this, CognitoUser);
 
 	    if (data == null || data.Username == null || data.Pool == null) {
@@ -1657,6 +1658,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.authenticationFlowType = 'USER_SRP_AUTH';
 
 	    this.storage = data.Storage || new _StorageHelper2.default().getStorage();
+
+	    this.refreshExpiredSession = refreshExpiredSession;
 	  }
 
 	  /**
@@ -2624,6 +2627,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return callback(new Error('Cannot retrieve a new session. Please authenticate.'), null);
 	      }
 
+	      if (!this.refreshExpiredSession) {
+	        this.clearCachedTokens();
+
+	        return callback(new Error('Current session has expired'), null);
+	      }
+
 	      this.refreshSession(refreshToken, callback);
 	    } else {
 	      callback(new Error('Local storage is missing an ID Token, Please authenticate'), null);
@@ -3250,7 +3259,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (err) {
 	          return callback.onFailure(err);
 	        }
-	        return callback(null, data);
+	        return callback.onSuccess(data);
 	      });
 	    }
 	  };

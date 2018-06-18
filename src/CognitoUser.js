@@ -75,8 +75,9 @@ export default class CognitoUser {
    * @param {string} data.Username The user's username.
    * @param {CognitoUserPool} data.Pool Pool containing the user.
    * @param {object} data.Storage Optional storage object.
+   * @param {bool=} refreshExpiredSession Refresh a current session when expires.
    */
-  constructor(data) {
+  constructor(data, refreshExpiredSession) {
     if (data == null || data.Username == null || data.Pool == null) {
       throw new Error('Username and pool information are required.');
     }
@@ -91,6 +92,8 @@ export default class CognitoUser {
     this.authenticationFlowType = 'USER_SRP_AUTH';
 
     this.storage = data.Storage || new StorageHelper().getStorage();
+
+    this.refreshExpiredSession = refreshExpiredSession;
   }
 
   /**
@@ -1054,6 +1057,12 @@ export default class CognitoUser {
 
       if (refreshToken.getToken() == null) {
         return callback(new Error('Cannot retrieve a new session. Please authenticate.'), null);
+      }
+
+      if (!this.refreshExpiredSession) {
+        this.clearCachedTokens();
+
+        return callback(new Error('Current session has expired'), null);
       }
 
       this.refreshSession(refreshToken, callback);
